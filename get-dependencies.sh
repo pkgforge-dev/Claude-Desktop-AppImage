@@ -28,4 +28,7 @@ echo "$link" | grep -oP 'claude-desktop_\K[^_]+' > ~/version
 
 echo "Preparing AppDir..."
 mkdir -p ./AppDir/
-bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - -C ./AppDir/
+bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - --strip-components=1 -C ./AppDir/
+
+mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
+rm -rf ./AppDir/lib
