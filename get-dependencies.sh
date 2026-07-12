@@ -19,12 +19,18 @@ case "$ARCH" in
 		farch=arm64
 		qemu_pkg="qemu-system-aarch64"
 		qemu_bin="qemu-system-aarch64"
-		edk2_pkg="edk2-aarch64"
+		edk2_pkg=""
 		edk2_src="/usr/share/edk2/aarch64"
 		;;
 esac
 
 pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img $qemu_pkg $edk2_pkg
+
+if [ "$ARCH" = "aarch64" ]; then
+	echo "Installing edk2-aarch64 from Arch Linux extra repo..."
+	curl -sL "https://archlinux.org/packages/extra/any/edk2-aarch64/download/" -o /tmp/edk2-aarch64.pkg.tar.zst
+	pacman -U --noconfirm /tmp/edk2-aarch64.pkg.tar.zst || bsdtar -xf /tmp/edk2-aarch64.pkg.tar.zst -C /
+fi
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
