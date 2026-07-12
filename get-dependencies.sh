@@ -24,7 +24,7 @@ case "$ARCH" in
 		;;
 esac
 
-pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat $qemu_pkg $edk2_pkg
+pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img $qemu_pkg $edk2_pkg
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
