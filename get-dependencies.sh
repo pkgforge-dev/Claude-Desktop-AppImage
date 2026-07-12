@@ -62,6 +62,6 @@ mkdir -p ./AppDir/share/OVMF
 cp $edk2_src/*.fd ./AppDir/share/OVMF/
 
 ovmf_name=$(basename "$(find ./AppDir/share/OVMF/ -name '*.fd' -print -quit)")
-cat > cowork.hook <<EOF
+cat > ./AppDir/bin/cowork.hook <<EOF
 export CLAUDE_OVMF_CODE_PATH="\${APPDIR}/share/OVMF/$ovmf_name"
 EOF
