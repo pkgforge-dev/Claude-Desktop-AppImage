@@ -11,26 +11,30 @@ case "$ARCH" in
 	x86_64)
 		farch=amd64
 		qemu_pkg="qemu-system-x86"
-		qemu_bin="qemu-system-x86_64"
+		edk2_flag="-S"
 		edk2_pkg="edk2-ovmf"
-		edk2_src="/usr/share/edk2/x64"
+		edk_arch="x64"
+		vmf_dir="OVMF"
+		code_src="OVMF_CODE.4m.fd"
+		vars_src="OVMF_VARS.4m.fd"
+		vmf_sfx="_4M"
 		;;
 	aarch64)
 		farch=arm64
 		qemu_pkg="qemu-system-aarch64"
-		qemu_bin="qemu-system-aarch64"
-		edk2_pkg=""
-		edk2_src="/usr/share/edk2/aarch64"
+		edk2_flag="-U"
+		curl -sL "https://archlinux.org/packages/extra/any/edk2-aarch64/download/" -o /tmp/edk2-aarch64.pkg.tar.zst
+		edk2_pkg="/tmp/edk2-aarch64.pkg.tar.zst"
+		edk_arch="aarch64"
+		vmf_dir="AAVMF"
+		code_src="QEMU_EFI.fd"
+		vars_src="QEMU_VARS.fd"
+		vmf_sfx=""
 		;;
 esac
 
-pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img $qemu_pkg $edk2_pkg
-
-if [ "$ARCH" = "aarch64" ]; then
-	echo "Installing edk2-aarch64 from Arch Linux extra repo..."
-	curl -sL "https://archlinux.org/packages/extra/any/edk2-aarch64/download/" -o /tmp/edk2-aarch64.pkg.tar.zst
-	pacman -U --noconfirm /tmp/edk2-aarch64.pkg.tar.zst || bsdtar -xf /tmp/edk2-aarch64.pkg.tar.zst -C /
-fi
+pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img virtiofsd $qemu_pkg
+pacman $edk2_flag --noconfirm $edk2_pkg
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
@@ -52,16 +56,12 @@ bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - --strip-components=2 -C ./Ap
 mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
 sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/claude-desktop.desktop
 
-cp /usr/bin/$qemu_bin /usr/bin/qemu-img /usr/bin/socat ./AppDir/bin/
+cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd/virtiofsd ./AppDir/bin/
 
 mkdir -p ./AppDir/share/qemu
 cp -r /usr/share/qemu/keymaps ./AppDir/share/qemu/
-cp /usr/share/qemu/{vgabios*.bin,efi-*.rom,kvmvapic.bin,linuxboot*.bin,bios*.bin,pvh.bin} ./AppDir/share/qemu/ 2>/dev/null || true
+cp /usr/share/qemu/{vgabios*.bin,efi-*.rom,kvmvapic.bin,linuxboot*.bin,bios*.bin,pvh.bin} ./AppDir/share/qemu/
 
-mkdir -p ./AppDir/share/OVMF
-cp $edk2_src/*.fd ./AppDir/share/OVMF/
-
-ovmf_name=$(basename "$(find ./AppDir/share/OVMF/ -name '*.fd' -print -quit)")
-cat > ./AppDir/bin/cowork.hook <<EOF
-export CLAUDE_OVMF_CODE_PATH="\${APPDIR}/share/OVMF/$ovmf_name"
-EOF
+mkdir -p ./AppDir/share/$vmf_dir
+cp -f /usr/share/edk2/$edk_arch/$code_src ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd
+cp -f /usr/share/edk2/$edk_arch/$vars_src ./AppDir/share/$vmf_dir/${vmf_dir}_VARS${vmf_sfx}.fd
