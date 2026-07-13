@@ -57,10 +57,7 @@ mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
 sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/claude-desktop.desktop
 
 cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd ./AppDir/bin/
-
-mkdir -p ./AppDir/share/qemu
-cp -r /usr/share/qemu/keymaps ./AppDir/share/qemu/
-cp /usr/share/qemu/{vgabios*.bin,efi-*.rom,kvmvapic.bin,linuxboot*.bin,bios*.bin,pvh.bin} ./AppDir/share/qemu/
+cp -r /usr/share/qemu ./AppDir/share/
 
 mkdir -p ./AppDir/share/$vmf_dir
 cp -f /usr/share/edk2/$edk_arch/$code_src ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd
