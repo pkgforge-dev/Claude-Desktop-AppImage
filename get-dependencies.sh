@@ -54,7 +54,7 @@ mkdir -p ./AppDir/
 bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - --strip-components=2 -C ./AppDir/
 
 mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
-perl -pi -e 's/\QPni=process.arch==="arm64"?["\/usr\/share\/AAVMF\/AAVMF_CODE.fd"]:["\/usr\/share\/OVMF\/OVMF_CODE_4M.fd","\/usr\/share\/OVMF\/OVMF_CODE.fd"],Yni=["\/usr\/libexec\/virtiofsd","\/usr\/bin\/virtiofsd"]\E/sprintf("%-*s", length($&), "Pni=process.arch===\"arm64\"?[process.env.APPDIR+\"\/share\/AAVMF\/AAVMF_CODE.fd\"]:[process.env.APPDIR+\"\/share\/OVMF\/OVMF_CODE_4M.fd\"],Yni=[process.env.APPDIR+\"\/bin\/virtiofsd\"]")/e' ./AppDir/bin/resources/app.asar
+perl -pi -e 's/([a-zA-Z0-9_\$]+)=process\.arch==="arm64"\?\["\/usr\/share\/AAVMF\/AAVMF_CODE\.fd"\]:\["\/usr\/share\/OVMF\/OVMF_CODE_4M\.fd","\/usr\/share\/OVMF\/OVMF_CODE\.fd"\],([a-zA-Z0-9_\$]+)=\["\/usr\/libexec\/virtiofsd","\/usr\/bin\/virtiofsd"\]/sprintf("%-*s", length($&), "$1=process.arch===\"arm64\"?[process.env.APPDIR+\"\/share\/AAVMF\/AAVMF_CODE.fd\"]:[process.env.APPDIR+\"\/share\/OVMF\/OVMF_CODE_4M.fd\"],$2=[process.env.APPDIR+\"\/bin\/virtiofsd\"]")/e' ./AppDir/bin/resources/app.asar
 sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/claude-desktop.desktop
 
 cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd ./AppDir/bin/
