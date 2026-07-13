@@ -56,7 +56,7 @@ bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - --strip-components=2 -C ./Ap
 mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
 sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/claude-desktop.desktop
 
-cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd/virtiofsd ./AppDir/bin/
+cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd ./AppDir/bin/
 
 mkdir -p ./AppDir/share/qemu
 cp -r /usr/share/qemu/keymaps ./AppDir/share/qemu/
