@@ -14,11 +14,5 @@ export DEPLOY_GTK=1
 export DEPLOY_OPENGL=1
 export DEPLOY_VULKAN=1
 
-export PATH_MAPPING='
-/usr/share/OVMF:${SHARUN_DIR%/*}/share/OVMF
-/usr/share/AAVMF:${SHARUN_DIR%/*}/share/AAVMF
-/usr/share/qemu:${SHARUN_DIR%/*}/share/qemu
-'
-
 quick-sharun ./AppDir/bin/* /usr/lib/libnss_nis.so* /usr/lib/libnsl.so* /usr/lib/libnss_mdns*_minimal.so*
 quick-sharun --make-appimage
