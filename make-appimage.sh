@@ -8,7 +8,7 @@ export OUTPATH=./dist
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export ICON=./AppDir/share/icons/hicolor/256x256/apps/claude-desktop.png
-export DESKTOP=./AppDir/share/applications/claude-desktop.desktop
+export DESKTOP=./AppDir/share/applications/com.anthropic.Claude.desktop
 
 export DEPLOY_GTK=1
 export DEPLOY_OPENGL=1
