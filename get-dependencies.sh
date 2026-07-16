@@ -44,7 +44,8 @@ echo "Getting binary..."
 echo "---------------------------------------------------------------"
 
 BASE_URL="https://downloads.claude.ai/claude-desktop/apt/stable"
-link="$BASE_URL/$(curl -sL --compressed "$BASE_URL/dists/stable/main/binary-$farch/Packages" | awk '/^Filename:/ {print $2; exit}')"
+https://claude.ai/api/desktop/linux/x64/deb/latest/redirect
+link="$BASE_URL/$(curl -sL --compressed "$BASE_URL/dists/stable/main/binary-$farch/Packages" | awk '/^Filename:/ {val=$2} END {print val}')"
 
 curl -sSfL --retry 30 --retry-connrefused "$link" -o /tmp/temp.deb
 echo "$link" | grep -oP 'claude-desktop_\K[^_]+' > ~/version
