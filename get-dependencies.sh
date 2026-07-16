@@ -51,10 +51,11 @@ echo "$link" | grep -oP 'claude-desktop_\K[^_]+' > ~/version
 
 echo "Preparing AppDir..."
 mkdir -p ./AppDir/
-bsdtar -xOf /tmp/temp.deb data.tar.* | bsdtar -xf - --strip-components=2 -C ./AppDir/
+bsdtar -xOf /tmp/temp.deb data.tar.xz | bsdtar -xf - --strip-components=2 -C ./AppDir/
 
 cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd ./AppDir/bin/
 mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
+rm -rf ./AppDir/lib
 cp -r /usr/share/qemu ./AppDir/share/
 mkdir ./AppDir/share/$vmf_dir
 cp -f /usr/share/edk2/$edk_arch/$code_src ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd
@@ -63,4 +64,4 @@ cp -f /usr/share/edk2/$edk_arch/$vars_src ./AppDir/share/$vmf_dir/${vmf_dir}_VAR
 perl -pi -e 's/\Q["\/usr\/share\/OVMF\/OVMF_CODE_4M.fd","\/usr\/share\/OVMF\/OVMF_CODE.fd"]\E/[process.env.APPDIR+\"\/share\/OVMF\/OVMF_CODE_4M.fd\"] /' ./AppDir/bin/resources/app.asar
 perl -pi -e 's/\Q["\/usr\/share\/AAVMF\/AAVMF_CODE.fd"]\E/[process.env.APPDIR+\"\/share\/AAVMF\/AAVMF_CODE.fd\"]/' ./AppDir/bin/resources/app.asar
 perl -pi -e 's/\Q["\/usr\/libexec\/virtiofsd","\/usr\/bin\/virtiofsd"]\E/sprintf("%-*s", length($&), "[process.env.APPDIR+\"\/bin\/virtiofsd\"]")/e' ./AppDir/bin/resources/app.asar
-sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/claude-desktop.desktop
+# sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/com.anthropic.Claude.desktop
