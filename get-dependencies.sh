@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -euo pipefail
 
 ARCH=$(uname -m)
 
@@ -23,7 +23,7 @@ case "$ARCH" in
 		farch=arm64
 		qemu_pkg="qemu-system-aarch64"
 		edk2_flag="-U"
-		curl -sL "https://archlinux.org/packages/extra/any/edk2-aarch64/download/" -o /tmp/edk2-aarch64.pkg.tar.zst
+		curl -sSfL "https://archlinux.org/packages/extra/any/edk2-aarch64/download/" -o /tmp/edk2-aarch64.pkg.tar.zst
 		edk2_pkg="/tmp/edk2-aarch64.pkg.tar.zst"
 		edk_arch="aarch64"
 		vmf_dir="AAVMF"
@@ -44,7 +44,7 @@ echo "Getting binary..."
 echo "---------------------------------------------------------------"
 
 BASE_URL="https://downloads.claude.ai/claude-desktop/apt/stable"
-link="$BASE_URL/$(curl -sL --compressed "$BASE_URL/dists/stable/main/binary-$farch/Packages" | grep -oP '^Filename:\s*\K.+' | head -1)"
+link="$BASE_URL/$(curl -sL --compressed "$BASE_URL/dists/stable/main/binary-$farch/Packages" | awk '/^Filename:/ {print $2; exit}')"
 
 curl -sSfL --retry 30 --retry-connrefused "$link" -o /tmp/temp.deb
 echo "$link" | grep -oP 'claude-desktop_\K[^_]+' > ~/version
