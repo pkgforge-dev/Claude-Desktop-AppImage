@@ -1,0 +1,2 @@
+#!/bin/sh
+export NSPR_USE_ZONE_ALLOCATOR=0
