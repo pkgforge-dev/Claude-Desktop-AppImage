@@ -67,7 +67,9 @@ cp -r /usr/share/qemu ./AppDir/share/
 mkdir ./AppDir/share/$vmf_dir
 cp -f /usr/share/edk2/$edk_arch/$code_src ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd
 cp -f /usr/share/edk2/$edk_arch/$vars_src ./AppDir/share/$vmf_dir/${vmf_dir}_VARS${vmf_sfx}.fd
+[ "$ARCH" = "aarch64" ] && cp -f ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd ./AppDir/AAVMF
 
-perl -pi -e 's/\Q["\/usr\/share\/OVMF\/OVMF_CODE_4M.fd","\/usr\/share\/OVMF\/OVMF_CODE.fd"]\E|\Q[`\/usr\/share\/OVMF\/OVMF_CODE_4M.fd`,`\/usr\/share\/OVMF\/OVMF_CODE.fd`]\E/sprintf("%-*s", length($&), "[process.env.APPDIR+\"\/share\/OVMF\/OVMF_CODE_4M.fd\"]")/e' ./AppDir/bin/resources/app.asar
-perl -pi -e 's/\Q["\/usr\/share\/AAVMF\/AAVMF_CODE.fd"]\E|\Q[`\/usr\/share\/AAVMF\/AAVMF_CODE.fd`]\E/[process.env.APPDIR+\"\/share\/AAVMF\/AAVMF_CODE.fd\"]/' ./AppDir/bin/resources/app.asar
+perl -pi -e 's/\Q[`\/usr\/share\/OVMF\/OVMF_CODE_4M.fd`,`\/usr\/share\/OVMF\/OVMF_CODE.fd`]\E/sprintf("%-*s", length($&), "[\`\${process.env.APPDIR}\/share\/OVMF\/OVMF_CODE_4M.fd\`]")/e' ./AppDir/bin/resources/app.asar
+perl -pi -e 's/\Q[`\/usr\/share\/AAVMF\/AAVMF_CODE.fd`]\E/sprintf("%-*s", length($&), "[\`\${process.env.APPDIR}\/AAVMF\`]")/e' ./AppDir/bin/resources/app.asar
+perl -pi -e 's/\Qe?.id===`ubuntu`&&(e.versionId??``).startsWith(`22.`)\E/!0||e?.id===`ubuntu`&&(e.versionId??``).startsWith( )/' ./AppDir/bin/resources/app.asar
 # sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/com.anthropic.Claude.desktop
