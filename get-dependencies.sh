@@ -18,6 +18,7 @@ case "$ARCH" in
 		code_src="OVMF_CODE.4m.fd"
 		vars_src="OVMF_VARS.4m.fd"
 		vmf_sfx="_4M"
+		nspr_url="http://archive.ubuntu.com/ubuntu/pool/main/n/nspr/libnspr4_4.35-0ubuntu0.22.04.1_amd64.deb"
 		;;
 	aarch64)
 		farch=arm64
@@ -30,10 +31,11 @@ case "$ARCH" in
 		code_src="QEMU_EFI.fd"
 		vars_src="QEMU_VARS.fd"
 		vmf_sfx=""
+		nspr_url="http://ports.ubuntu.com/pool/main/n/nspr/libnspr4_4.35-0ubuntu0.22.04.1_arm64.deb"
 		;;
 esac
 
-pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img virtiofsd $qemu_pkg
+pacman -Syu --noconfirm patchelf libnss_nis nss-mdns nss socat qemu-img $qemu_pkg
 pacman $edk2_flag --noconfirm $edk2_pkg
 
 echo "Installing debloated packages..."
@@ -53,9 +55,14 @@ echo "Preparing AppDir..."
 mkdir -p ./AppDir/
 bsdtar -xOf /tmp/temp.deb data.tar.xz | bsdtar -xf - --strip-components=2 -C ./AppDir/
 
-cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat /usr/lib/virtiofsd ./AppDir/bin/
+cp /usr/bin/qemu-system-$ARCH /usr/bin/qemu-img /usr/bin/socat ./AppDir/bin/
 mv -f ./AppDir/lib/claude-desktop/* ./AppDir/bin/
 rm -rf ./AppDir/lib
+
+echo "Downloading Ubuntu's libnspr4 to satisfy nspr_use_zone_allocator..."
+curl -sSfL "$nspr_url" -o /tmp/nspr.deb
+bsdtar -xOf /tmp/nspr.deb 'data.tar.*' | bsdtar -xf - --strip-components=4 -C ./AppDir/bin/ './usr/lib/*/libnspr4.so'
+
 cp -r /usr/share/qemu ./AppDir/share/
 mkdir ./AppDir/share/$vmf_dir
 cp -f /usr/share/edk2/$edk_arch/$code_src ./AppDir/share/$vmf_dir/${vmf_dir}_CODE${vmf_sfx}.fd
@@ -63,5 +70,4 @@ cp -f /usr/share/edk2/$edk_arch/$vars_src ./AppDir/share/$vmf_dir/${vmf_dir}_VAR
 
 perl -pi -e 's/\Q["\/usr\/share\/OVMF\/OVMF_CODE_4M.fd","\/usr\/share\/OVMF\/OVMF_CODE.fd"]\E|\Q[`\/usr\/share\/OVMF\/OVMF_CODE_4M.fd`,`\/usr\/share\/OVMF\/OVMF_CODE.fd`]\E/sprintf("%-*s", length($&), "[process.env.APPDIR+\"\/share\/OVMF\/OVMF_CODE_4M.fd\"]")/e' ./AppDir/bin/resources/app.asar
 perl -pi -e 's/\Q["\/usr\/share\/AAVMF\/AAVMF_CODE.fd"]\E|\Q[`\/usr\/share\/AAVMF\/AAVMF_CODE.fd`]\E/[process.env.APPDIR+\"\/share\/AAVMF\/AAVMF_CODE.fd\"]/' ./AppDir/bin/resources/app.asar
-perl -pi -e 's/\Q["\/usr\/libexec\/virtiofsd","\/usr\/bin\/virtiofsd"]\E|\Q[`\/usr\/libexec\/virtiofsd`,`\/usr\/bin\/virtiofsd`]\E/sprintf("%-*s", length($&), "[process.env.APPDIR+\"\/bin\/virtiofsd\"]")/e' ./AppDir/bin/resources/app.asar
 # sed -i 's|MimeType=x-scheme-handler/claude;|MimeType=x-scheme-handler/claude;x-scheme-handler/claude-desktop;|' ./AppDir/share/applications/com.anthropic.Claude.desktop
